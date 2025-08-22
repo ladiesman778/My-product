@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Catalog</title>
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --card: #111216;
+      --text: #e6e6e6;
+      --muted: #a8a8a8;
+      --accent: #3aa6ff;
+      --border: #1e2027;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b0c10 0%, #0f1117 100%);
+      color: var(--text);
+      padding: 32px 16px 48px;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    h1 {
+      font-size: 28px;
+      margin: 0;
+      letter-spacing: 0.3px;
+    }
+    .muted { color: var(--muted); font-size: 14px; }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    input, select {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline: none;
+      width: 100%;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0 20px;
+    }
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead th {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      background: #151821;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+    tbody td {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 15px;
+    }
+    tbody tr:hover td {
+      background: rgba(58, 166, 255, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(58, 166, 255, 0.1);
+      border: 1px solid rgba(58, 166, 255, 0.4);
+      font-size: 12px;
+      color: #d8ecff;
+    }
+    footer { margin-top: 18px; }
+    .small { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Product Catalog</h1>
+        <div class="muted">Auto-generated from your spreadsheet</div>
+      </div>
+      <div class="badge" id="count"></div>
+    </header>
+
+    <div class="toolbar">
+      <div class="controls">
+        <input id="search" placeholder="Search item or brand…" />
+        <select id="brand">
+          <option value="">All brands</option>
+        </select>
+        <select id="sort">
+          <option value="brand,asc">Sort: Brand (A→Z)</option>
+          <option value="brand,desc">Sort: Brand (Z→A)</option>
+          <option value="item,asc">Sort: Item (A→Z)</option>
+          <option value="item,desc">Sort: Item (Z→A)</option>
+          <option value="price,asc">Sort: Price (Low→High)</option>
+          <option value="price,desc">Sort: Price (High→Low)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="table">
+        <thead>
+          <tr>
+            <th data-k="brand">Brand</th>
+            <th data-k="item">Item</th>
+            <th data-k="price">Price</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <footer>
+      <div class="small">Tip: Use the Brand filter, or click the column headers to sort.</div>
+    </footer>
+  </div>
+
+  <script>
+    const DATA = [{"Brand": "ARGENTINA", "Item": "Corn Beef", "Price": "37"}, {"Brand": "ARGENTINA", "Item": "Meat loaf", "Price": "27"}, {"Brand": "ARGENTINA", "Item": "Beef loaf", "Price": "28"}, {"Brand": "ARGENTINA", "Item": "Mini Beef loaf", "Price": "24"}, {"Brand": "ARGENTINA", "Item": "Sausage", "Price": "32"}, {"Brand": "ARGENTINA", "Item": "Liver spread 85g", "Price": "26"}, {"Brand": "FRESCA TUNA", "Item": "Mechado 175g", "Price": "29"}, {"Brand": "FRESCA TUNA", "Item": "Caldereta 175g", "Price": "29"}, {"Brand": "FRESCA TUNA", "Item": "Afritada 150g", "Price": "26"}, {"Brand": "FRESCA TUNA", "Item": "555 Carne Norte", "Price": "32"}, {"Brand": "FRESCA TUNA", "Item": "Maling 397g", "Price": "120"}, {"Brand": "YOUNG's TOWN", "Item": "Sardines Original", "Price": "25"}, {"Brand": "YOUNG's TOWN", "Item": "Sardines Spicy", "Price": "25"}, {"Brand": "YOUNG's TOWN", "Item": "Corn Beef", "Price": "36"}, {"Brand": "CENTURY TUNA", "Item": "Flakes & Oil", "Price": "38"}, {"Brand": "CENTURY TUNA", "Item": "Hot & spicy", "Price": "38"}, {"Brand": "CENTURY TUNA", "Item": "UNI-PAK mackerel", "Price": "38"}, {"Brand": "LUCKY ME", "Item": "Beef & Chicken", "Price": "12"}, {"Brand": "LUCKY ME", "Item": "Pancit Canton (All Flavors)", "Price": "16"}, {"Brand": "LUCKY ME", "Item": "Cup Noodles (All flavors)", "Price": "25"}, {"Brand": "LUCKY ME", "Item": "Jjampong", "Price": "30"}, {"Brand": "LUCKY ME", "Item": "PAYLESS Beef & Chicken", "Price": "10"}, {"Brand": "SILVER'S SWAN", "Item": "Soy Sauce 100 ml", "Price": "9"}, {"Brand": "SILVER'S SWAN", "Item": "Soy Sauce 200 ml", "Price": "12"}, {"Brand": "SILVER'S SWAN", "Item": "Soy sauce 350 ml", "Price": "23"}, {"Brand": "SILVER'S SWAN", "Item": "Soy sauce 1L", "Price": "60"}, {"Brand": "SILVER'S SWAN", "Item": "Vinegar 1L", "Price": "50"}, {"Brand": "SILVER'S SWAN", "Item": "Vinegar 200 ml", "Price": "10"}, {"Brand": "SILVER'S SWAN", "Item": "Vinegar 350 ml", "Price": "21"}, {"Brand": "SILVER'S SWAN", "Item": "Patis 100 ml", "Price": "13"}, {"Brand": "SILVER'S SWAN", "Item": "Datu Puti Oyster Sauce", "Price": "8"}, {"Brand": "MANG TOMAS", "Item": "Mang Tomas 100g", "Price": "15"}, {"Brand": "MANG TOMAS", "Item": "Mang Tomas 325g", "Price": "40"}, {"Brand": "PAPA KETCHUP", "Item": "Papa ketchup 1kg", "Price": "70"}, {"Brand": "PAPA KETCHUP", "Item": "Papa ketchup 320g", "Price": "29"}, {"Brand": "PAPA KETCHUP", "Item": "Papa ketchup 200g", "Price": "20"}, {"Brand": "PAPA KETCHUP", "Item": "Papa ketchup 100g", "Price": "12"}, {"Brand": "BISCUITS", "Item": "Frootees", "Price": "7  / 65 packs"}, {"Brand": "BISCUITS", "Item": "Wafertime", "Price": "8  / 78 packs"}, {"Brand": "BISCUITS", "Item": "Rebisco xtreme", "Price": "7  / 65 packs"}, {"Brand": "BISCUITS", "Item": "Rebisco sandwich", "Price": "7  / 65 packs"}, {"Brand": "BISCUITS", "Item": "Combi", "Price": "7  / 66 packs"}, {"Brand": "BISCUITS", "Item": "Fudgee Bar", "Price": "9  / 85 packs"}, {"Brand": "BISCUITS", "Item": "Hansel sandwich mocha,milk", "Price": "7  / 65 packs"}, {"Brand": "BISCUITS", "Item": "Hansel Crackers", "Price": "8   / 66 packs"}, {"Brand": "BISCUITS", "Item": "Bravo", "Price": "7  / 65 packs"}, {"Brand": "BISCUITS", "Item": "ITEM", "Price": "Price"}, {"Brand": "CHIPS", "Item": "Caramel popcorn 120g", "Price": "40"}, {"Brand": "CHIPS", "Item": "Caramel popcorn 60g", "Price": "20"}, {"Brand": "CHIPS", "Item": "Spicy Seafood Curls 90g", "Price": "28"}, {"Brand": "CHIPS", "Item": "Spicy Seafood Curls 24g", "Price": "8"}, {"Brand": "CHIPS", "Item": "Piatos Green", "Price": "18"}, {"Brand": "CHIPS", "Item": "Piatos Blue", "Price": "18"}, {"Brand": "CHIPS", "Item": "Potato Fries 50g", "Price": "18"}, {"Brand": "CHIPS", "Item": "Oishi Prawn crackers 60g", "Price": "20"}, {"Brand": "CHIPS", "Item": "Oishi Prawn crackers 24g", "Price": "8"}, {"Brand": "CHIPS", "Item": "Patata", "Price": "8"}, {"Brand": "CHIPS", "Item": "Patata Cheese flavor", "Price": "9"}, {"Brand": "CHIPS", "Item": "Onion rings", "Price": "8"}, {"Brand": "CHIPS", "Item": "Boogyman", "Price": "8"}, {"Brand": "CHIPS", "Item": "Cracklings 100g", "Price": "25"}, {"Brand": "CHIPS", "Item": "Cracklings 24g", "Price": "8"}, {"Brand": "CHIPS", "Item": "Rinbee 24g", "Price": "8"}, {"Brand": "CHIPS", "Item": "Choco flakes", "Price": "8"}, {"Brand": "CHIPS", "Item": "Cheez on chips", "Price": "8"}, {"Brand": "CHIPS", "Item": "Potato Fries 21g", "Price": "9"}, {"Brand": "CHIPS", "Item": "Martys 90g", "Price": "25"}, {"Brand": "CHIPS", "Item": "Martys", "Price": "8"}, {"Brand": "CHIPS", "Item": "Kirei", "Price": "8"}, {"Brand": "CHIPS", "Item": "Bread pan (green & white)", "Price": "8"}, {"Brand": "CHIPS", "Item": "Pillows 38g", "Price": "11"}, {"Brand": "CHIPS", "Item": "Potato crisps cheese", "Price": "8"}, {"Brand": "CHIPS", "Item": "Alibaba", "Price": "2 for 5 pesos / 22 packs"}, {"Brand": "CHIPS", "Item": "O- Puff", "Price": "2 pc 3 pesos / 30 whole"}, {"Brand": "CHIPS", "Item": "Mentos", "Price": "1"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Kopiko Brown", "Price": "16"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Great taste White Caramel", "Price": "16"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Nescafe Creamy white (twin pack)", "Price": "15 / 140 whole pack"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Nescafe Creamy Latte (twin pack)", "Price": "15 / 140 whole pack"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Kopiko Black (solo) 3in1", "Price": "9"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Kopiko Blanca (solo)", "Price": "10"}, {"Brand": "INSTANT COFFEE & etc", "Item": "Milo 24g", "Price": "10"}, {"Brand": "SOFTDRINKS", "Item": "Royal,Coke & Sprite 8oz", "Price": "12"}, {"Brand": "SOFTDRINKS", "Item": "Royal,Coke & Sprite kasalo", "Price": "30/290 case"}, {"Brand": "SOFTDRINKS", "Item": "Tropicana", "Price": "20/ 325 case"}, {"Brand": "CIGARETTE", "Item": "Marlboro Red,Black,Blue & Light", "Price": "9 per stick/ 170 pack"}, {"Brand": "CIGARETTE", "Item": "Mighty Green", "Price": "8 per stick/ 155 pack"}, {"Brand": "CIGARETTE", "Item": "Camel", "Price": "7 per stick/ 135 pack"}, {"Brand": "CHILLED DRINKS", "Item": "Yakult", "Price": "11 / 50 packs"}, {"Brand": "CHILLED DRINKS", "Item": "Chuckie 110 ml", "Price": "16"}, {"Brand": "CHILLED DRINKS", "Item": "Bear brand sterilized milk", "Price": "35"}, {"Brand": "CHILLED DRINKS", "Item": "Zesto Big 250", "Price": "11 / 105 case"}, {"Brand": "CHILLED DRINKS", "Item": "Zesto Apple", "Price": "12 / 105 case"}, {"Brand": "CHILLED DRINKS", "Item": "Choc-o Drink cute", "Price": "15"}, {"Brand": "CHILLED DRINKS", "Item": "C2", "Price": "16"}, {"Brand": "CHILLED DRINKS", "Item": "Mogu-mogu Pink Guava", "Price": "48"}, {"Brand": "CHILLED DRINKS", "Item": "Dutch Mill  90 ml", "Price": "14"}, {"Brand": "DEL MONTE", "Item": "Fiesta Fruit Cocktail", "Price": "330"}, {"Brand": "DEL MONTE", "Item": "Pineapple Juice", "Price": "33 pc/185 whole"}, {"Brand": "DEL MONTE", "Item": "Chunks 200g", "Price": "33"}, {"Brand": "DEL MONTE", "Item": "Tomato Sauce 115g", "Price": "18"}, {"Brand": "DEL MONTE", "Item": "Tomato paste 150g", "Price": "38"}, {"Brand": "DEL MONTE", "Item": "Tomato paste 70g", "Price": "22"}, {"Brand": "ALASKA", "Item": "Evaporada 360 ml", "Price": "38"}, {"Brand": "ALASKA", "Item": "Condense 370 ml", "Price": "58"}, {"Brand": "ALASKA", "Item": "NESTLE all-purpose cream", "Price": "75"}, {"Brand": "BEAR BRAND", "Item": "Adult Plus 180 ml", "Price": "105"}, {"Brand": "BEAR BRAND", "Item": "Fortified milk 300g", "Price": "115"}, {"Brand": "BEAR BRAND", "Item": "Fortified milk Swak 33g", "Price": "13"}, {"Brand": "BEAR BRAND", "Item": "Chocomilk 29g", "Price": "13"}, {"Brand": "BEAR BRAND", "Item": "BIRCHTREE Fortified Milk", "Price": "11"}, {"Brand": "EDEN", "Item": "Eden cheese 160g", "Price": "55"}, {"Brand": "EDEN", "Item": "Eden cheese Sulit Pack", "Price": "20"}, {"Brand": "LADY'S CHOICE", "Item": "Mayonnaise (All Flavors)", "Price": "37"}, {"Brand": "ROYAL", "Item": "Royal Celebrations", "Price": "150"}, {"Brand": "ROYAL", "Item": "Spaghetti pasta 900g", "Price": "115"}, {"Brand": "ROYAL", "Item": "Spaghetti pasta 400g", "Price": "70"}, {"Brand": "ROYAL", "Item": "Macaroni 1kg", "Price": "120"}, {"Brand": "ROYAL", "Item": "Macaroni 400g", "Price": "70"}, {"Brand": "ROYAL", "Item": "SUPER Q Pancit Bihon", "Price": "50"}, {"Brand": "ROYAL", "Item": "CDO nata red & white", "Price": "70"}, {"Brand": "ROYAL", "Item": "FLORENCE green nata", "Price": "68"}, {"Brand": "LIQUIOR", "Item": "GINEBRA San Miguel 2x2", "Price": "72"}, {"Brand": "LIQUIOR", "Item": "Alfonso 1L", "Price": "305"}, {"Brand": "LIQUIOR", "Item": "Emperador Light 1L", "Price": "185"}, {"Brand": "LIQUIOR", "Item": "Red Horse", "Price": "60 / 700 case"}, {"Brand": "LIQUIOR", "Item": "Red Horse Jumbo", "Price": "120 / 700 case"}, {"Brand": "LIQUIOR", "Item": "San Mig light", "Price": "48 / 1,150 case"}, {"Brand": "ENERGY DRINK", "Item": "Cobra red & green", "Price": "19"}, {"Brand": "ENERGY DRINK", "Item": "Sting", "Price": "20"}, {"Brand": "SHAMPOO", "Item": "Pantene", "Price": "8"}, {"Brand": "SHAMPOO", "Item": "Clear Pink & Blue", "Price": "8"}, {"Brand": "SHAMPOO", "Item": "Dove", "Price": "8"}, {"Brand": "SHAMPOO", "Item": "Sunsilk pink", "Price": "8"}, {"Brand": "SHAMPOO", "Item": "Head & Shoulders", "Price": "8"}, {"Brand": "SHAMPOO", "Item": "Palmolive", "Price": "8"}, {"Brand": "CONDITIONER", "Item": "Keratin Plus black,red, gold", "Price": "8"}, {"Brand": "CONDITIONER", "Item": "Pantene", "Price": "8"}, {"Brand": "CONDITIONER", "Item": "Creamsilk", "Price": "8"}, {"Brand": "CONDITIONER", "Item": "ITEM", "Price": "PRICE"}, {"Brand": "JUICE", "Item": "Tang Ice tea", "Price": "25"}, {"Brand": "JUICE", "Item": "Tang Pomelo & Lychee", "Price": "26"}, {"Brand": "JUICE", "Item": "Tang Mango", "Price": "24"}, {"Brand": "JUICE", "Item": "Nestea Honey Blend", "Price": "26"}, {"Brand": "DETERGENT", "Item": "Surf fabric conditioner (pink)", "Price": "7"}, {"Brand": "DETERGENT", "Item": "Surf Bar", "Price": "35"}, {"Brand": "DETERGENT", "Item": "Tide Powder (twin) 67g", "Price": "16"}, {"Brand": "DETERGENT", "Item": "Tide Bar with freshness of downy 125g", "Price": "16"}, {"Brand": "DETERGENT", "Item": "Champion Supra Power 35g", "Price": "8"}, {"Brand": "DETERGENT", "Item": "Calla Floral Fresh 45g", "Price": "9"}, {"Brand": "DETERGENT", "Item": "Ariel Clean & Bright  (twin) 66g", "Price": "16"}, {"Brand": "DETERGENT", "Item": "Pride powder 40g", "Price": "7"}, {"Brand": "DETERGENT", "Item": "Downy 26ml", "Price": "8"}, {"Brand": "DETERGENT", "Item": "Zonrox 250 ml", "Price": "18"}, {"Brand": "NAPKIN", "Item": "Whisper regular protect with wings 8 pc", "Price": "7 / 52 packs"}, {"Brand": "NAPKIN", "Item": "Sisters Day Maxi non-wings 12 pc", "Price": "5 / 35 packs"}, {"Brand": "NAPKIN", "Item": "Sisters overnight dry with wings 4+1", "Price": "8 / 35 packs"}, {"Brand": "NAPKIN", "Item": "Modess regular 8+2 pads (non wings)", "Price": "6 / 45 packs"}, {"Brand": "NAPKIN", "Item": "Modess (cottony soft long w/ wings) 8 pc", "Price": "8 / 55  packs"}, {"Brand": "NAPKIN", "Item": "Charmee Extra Long Pantylines 20pc", "Price": "3 / 30  packs"}, {"Brand": "NAPKIN", "Item": "Charmee Pantyliners (pink) 20 pc", "Price": "3 / 30  packs"}, {"Brand": "SEASONINGS", "Item": "Magic sarap 150g", "Price": "75"}, {"Brand": "SEASONINGS", "Item": "Magic sarap", "Price": "7 / 135 whole w/ free"}, {"Brand": "BATH SOAP", "Item": "Safeguard Lemon", "Price": "38 per box"}, {"Brand": "BATH SOAP", "Item": "safeguard Sachet (all scent)", "Price": "22"}, {"Brand": "BATH SOAP", "Item": "Irish Spring", "Price": "25 / 135 whole"}, {"Brand": "BATH SOAP", "Item": "Palmolive (light blue, green)", "Price": "20 / 105 whole"}, {"Brand": "BATH SOAP", "Item": "Kojiesan dual", "Price": "75"}, {"Brand": "BATH SOAP", "Item": "Kojiesan Triple", "Price": "125"}, {"Brand": "BATH SOAP", "Item": "Dr. S. Wong ( Sulfur)", "Price": "40"}, {"Brand": "BATH SOAP", "Item": "Bioderm Bloom pink", "Price": "20 110 whole"}, {"Brand": "BATH SOAP", "Item": "Papaya C.Y Gabriel", "Price": "28 / 300 whole"}, {"Brand": "BATH SOAP", "Item": "Johnson's Baby soap 75g pink", "Price": "42"}, {"Brand": "BATH SOAP", "Item": "Dove pink", "Price": "65 each / 180 whole"}, {"Brand": "DENTAL ESSENTIALS", "Item": "Colgate Toothbrush Classic", "Price": "17"}, {"Brand": "DENTAL ESSENTIALS", "Item": "Colgate (2 pcs in 1 box)", "Price": "180"}, {"Brand": "DENTAL ESSENTIALS", "Item": "Close Up (twin pack)", "Price": "10"}, {"Brand": "DENTAL ESSENTIALS", "Item": "Joy Diswashing Liquid 6+1", "Price": "8 / 40 whole bundle"}, {"Brand": "DIAPER", "Item": "EQ Dry 4's Medium", "Price": "11/ 40 whole"}, {"Brand": "DIAPER", "Item": "EQ Dry 4's Large", "Price": "12/ 45 whole"}];
+
+    // Build brand list
+    const brandSelect = document.getElementById('brand');
+    [...new Set(DATA.map(d => d.Brand))].sort().forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b;
+      opt.textContent = b;
+      brandSelect.appendChild(opt);
+    });
+
+    const tbody = document.querySelector('#table tbody');
+    const countBadge = document.getElementById('count');
+    const search = document.getElementById('search');
+    const sortSel = document.getElementById('sort');
+
+    function parsePrice(p) {
+      // Extract first number in string for sorting; fallback Infinity if missing
+      if (!p) return NaN;
+      const m = (''+p).replace(/,/g,'').match(/\d+(?:\.\d+)?/);
+      return m ? parseFloat(m[0]) : NaN;
+    }
+
+    function render() {
+      const q = search.value.toLowerCase().trim();
+      const brand = brandSelect.value;
+      const [key, dir] = sortSel.value.split(',');
+
+      let rows = DATA.filter(r => {
+        const hit = (r.Brand + ' ' + r.Item + ' ' + r.Price).toLowerCase().includes(q);
+        const brandOK = !brand || r.Brand === brand;
+        return hit && brandOK;
+      });
+
+      rows.sort((a,b) => {
+        let av, bv;
+        if (key === 'price') {
+          av = parsePrice(a.Price); bv = parsePrice(b.Price);
+          if (isNaN(av)) av = Infinity;
+          if (isNaN(bv)) bv = Infinity;
+        } else if (key === 'brand') { av = a.Brand.toLowerCase(); bv = b.Brand.toLowerCase(); }
+          else { av = a.Item.toLowerCase(); bv = b.Item.toLowerCase(); }
+        if (av < bv) return dir==='asc' ? -1 : 1;
+        if (av > bv) return dir==='asc' ? 1 : -1;
+        return 0;
+      });
+
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.Brand}</td>
+          <td>${r.Item}</td>
+          <td>${r.Price}</td>
+        </tr>
+      `).join('');
+
+      countBadge.textContent = rows.length + ' items';
+    }
+
+    // Hook up interactions
+    search.addEventListener('input', render);
+    brandSelect.addEventListener('change', render);
+    sortSel.addEventListener('change', render);
+    document.querySelectorAll('th[data-k]').forEach(th => {
+      th.addEventListener('click', () => {
+        const k = th.dataset.k;
+        const current = sortSel.value.split(',')[0];
+        const currentDir = sortSel.value.split(',')[1];
+        const nextDir = (current === k && currentDir === 'asc') ? 'desc' : 'asc';
+        sortSel.value = k + ',' + nextDir;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
